@@ -1,7 +1,7 @@
 # Neo4j MCP Server
 # Downloads and runs the official Neo4j MCP server binary
 
-FROM alpine:3.20
+FROM alpine:3.21
 
 ARG NEO4J_MCP_VERSION=1.4.6
 

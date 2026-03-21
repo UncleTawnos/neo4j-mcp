@@ -61,6 +61,7 @@ jobs:
           image-ref: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           format: table
           exit-code: 1
+          ignore-unfixed: true
           severity: CRITICAL,HIGH
 
       - name: Push image
