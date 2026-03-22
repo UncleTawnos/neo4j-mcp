@@ -1,0 +1,143 @@
+suite: deployment tests
+templates:
+  - templates/deployment.yaml
+tests:
+  - it: should render with defaults
+    asserts:
+      - isKind:
+          of: Deployment
+      - equal:
+          path: spec.replicas
+          value: 1
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "ghcr.io/uncletawnos/neo4j-mcp:1.4.6"
+      - equal:
+          path: spec.template.spec.containers[0].ports[0].containerPort
+          value: 8000
+
+  - it: should use custom image tag
+    set:
+      image.tag: "2.0.0"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "ghcr.io/uncletawnos/neo4j-mcp:2.0.0"
+
+  - it: should set environment variables
+    set:
+      env:
+        NEO4J_URI: "neo4j://db:7687"
+        NEO4J_USERNAME: "neo4j"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: NEO4J_URI
+            value: "neo4j://db:7687"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: NEO4J_USERNAME
+            value: "neo4j"
+
+  - it: should render default env vars from values
+    asserts:
+      - exists:
+          path: spec.template.spec.containers[0].env
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: NEO4J_URI
+            value: ""
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: NEO4J_USERNAME
+            value: ""
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: NEO4J_PASSWORD
+            value: ""
+
+  - it: should set envFrom for secrets
+    set:
+      envFrom:
+        - secretRef:
+            name: neo4j-credentials
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: neo4j-credentials
+
+  - it: should set custom replica count
+    set:
+      replicaCount: 3
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 3
+
+  - it: should set resources
+    set:
+      resources:
+        limits:
+          cpu: 500m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.cpu
+          value: 500m
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.memory
+          value: 256Mi
+
+  - it: should pass extra args
+    set:
+      args:
+        - "--verbose"
+        - "--port=9000"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args
+          value:
+            - "--verbose"
+            - "--port=9000"
+
+  - it: should not render args when empty
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].args
+
+  - it: should apply fullnameOverride
+    set:
+      fullnameOverride: my-custom-name
+    asserts:
+      - equal:
+          path: metadata.name
+          value: my-custom-name
+
+  - it: should set nodeSelector
+    set:
+      nodeSelector:
+        disktype: ssd
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector.disktype
+          value: ssd
+
+  - it: should set pod annotations
+    set:
+      podAnnotations:
+        prometheus.io/scrape: "true"
+    asserts:
+      - equal:
+          path: spec.template.metadata.annotations
+          value:
+            prometheus.io/scrape: "true"

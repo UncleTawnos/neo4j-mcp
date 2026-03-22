@@ -1,0 +1,33 @@
+suite: service tests
+templates:
+  - templates/service.yaml
+tests:
+  - it: should render with defaults
+    asserts:
+      - isKind:
+          of: Service
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - equal:
+          path: spec.ports[0].port
+          value: 8000
+      - equal:
+          path: spec.ports[0].targetPort
+          value: http
+
+  - it: should use custom service type
+    set:
+      service.type: NodePort
+    asserts:
+      - equal:
+          path: spec.type
+          value: NodePort
+
+  - it: should use custom port
+    set:
+      service.port: 9000
+    asserts:
+      - equal:
+          path: spec.ports[0].port
+          value: 9000
