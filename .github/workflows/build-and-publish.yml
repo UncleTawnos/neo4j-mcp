@@ -125,4 +125,6 @@ jobs:
         run: helm package ${{ env.CHART_PATH }}
 
       - name: Push chart to GHCR
-        run: helm push neo4j-mcp-${{ steps.version.outputs.version }}.tgz oci://${{ env.REGISTRY }}/${{ github.repository_owner }}
+        run: helm push neo4j-mcp-${{ steps.version.outputs.version }}.tgz oci://${{ env.REGISTRY }}/${OWNER,,}
+        env:
+          OWNER: ${{ github.repository_owner }}
