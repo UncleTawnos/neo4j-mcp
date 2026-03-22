@@ -1,0 +1,12 @@
+apiVersion: v2
+name: neo4j-mcp
+description: Helm chart for the Neo4j MCP server
+type: application
+version: 0.1.0
+appVersion: "1.4.6"
+home: https://github.com/uncletawnos/neo4j-mcp
+sources:
+  - https://github.com/uncletawnos/neo4j-mcp
+  - https://github.com/neo4j/mcp
+maintainers:
+  - name: uncletawnos
